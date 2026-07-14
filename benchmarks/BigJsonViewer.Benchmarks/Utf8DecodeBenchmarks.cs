@@ -21,7 +21,11 @@ public class Utf8DecodeBenchmarks
     }
 
     [GlobalCleanup]
-    public void Cleanup() => _corpus.Dispose();
+    public void Cleanup()
+    {
+        BenchmarkProcessMetrics.Record(nameof(Utf8DecodeBenchmarks));
+        _corpus.Dispose();
+    }
 
     [Benchmark(Baseline = true)]
     public int ValidateAndCountCharacters() => StrictUtf8.GetCharCount(_data);

@@ -21,7 +21,11 @@ public class SequentialReadBenchmarks
     }
 
     [GlobalCleanup]
-    public void Cleanup() => _corpus.Dispose();
+    public void Cleanup()
+    {
+        BenchmarkProcessMetrics.Record(nameof(SequentialReadBenchmarks));
+        _corpus.Dispose();
+    }
 
     [Benchmark(Baseline = true)]
     public long FileStreamSequential()

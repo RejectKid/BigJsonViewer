@@ -18,7 +18,11 @@ public class StructuralScanBenchmarks
     }
 
     [GlobalCleanup]
-    public void Cleanup() => _corpus.Dispose();
+    public void Cleanup()
+    {
+        BenchmarkProcessMetrics.Record(nameof(StructuralScanBenchmarks));
+        _corpus.Dispose();
+    }
 
     [Benchmark(Baseline = true)]
     public StructuralScanResult Scalar() => StructuralScanner.ScanScalar(_data);
