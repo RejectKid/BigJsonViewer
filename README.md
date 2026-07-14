@@ -68,6 +68,7 @@ The release workflow produces archives for Windows, Linux, and macOS on x64 and 
 - [Corpus generator](docs/CORPUS_GENERATOR.md)
 - [Performance benchmarks](docs/BENCHMARKS.md)
 - [Initial performance budgets](docs/PERFORMANCE_BUDGETS.md)
+- [Source storage](docs/STORAGE.md)
 
 ## Performance principles
 

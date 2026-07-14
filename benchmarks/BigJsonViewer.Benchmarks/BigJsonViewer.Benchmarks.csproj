@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BigJsonViewer.BenchmarkKernels\BigJsonViewer.BenchmarkKernels.csproj" />
+    <ProjectReference Include="..\..\src\BigJsonViewer.Storage\BigJsonViewer.Storage.csproj" />
     <ProjectReference Include="..\..\tools\BigJsonViewer.CorpusGenerator\BigJsonViewer.CorpusGenerator.csproj" />
   </ItemGroup>
 
