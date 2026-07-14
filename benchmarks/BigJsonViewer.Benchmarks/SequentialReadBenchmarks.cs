@@ -1,5 +1,6 @@
 using System.IO.MemoryMappedFiles;
 using BenchmarkDotNet.Attributes;
+using BigJsonViewer.Storage;
 
 namespace BigJsonViewer.Benchmarks;
 
@@ -7,16 +8,24 @@ namespace BigJsonViewer.Benchmarks;
 [MemoryDiagnoser]
 public class SequentialReadBenchmarks
 {
+    private static readonly SequentialChunkHandler ConsumeChunk = static (_, _) => { };
     private BenchmarkCorpusLease _corpus = null!;
+    private PooledSequentialFileReader _pooledReader = null!;
     private byte[] _buffer = null!;
 
-    [Params(64 * 1024, 1024 * 1024, 8 * 1024 * 1024)]
+    [Params(
+        SequentialReadOptions.MinimumBufferSize,
+        SequentialReadOptions.DefaultBufferSize,
+        SequentialReadOptions.MaximumBufferSize)]
     public int BufferSize { get; set; }
 
     [GlobalSetup]
     public void Setup()
     {
         _corpus = BenchmarkCorpusLease.Create();
+        _pooledReader = new PooledSequentialFileReader(
+            _corpus.Path,
+            new SequentialReadOptions(BufferSize));
         _buffer = GC.AllocateUninitializedArray<byte>(BufferSize);
     }
 
@@ -24,6 +33,7 @@ public class SequentialReadBenchmarks
     public void Cleanup()
     {
         BenchmarkProcessMetrics.Record(nameof(SequentialReadBenchmarks));
+        _pooledReader.Dispose();
         _corpus.Dispose();
     }
 
@@ -61,6 +71,9 @@ public class SequentialReadBenchmarks
             offset += read;
         }
     }
+
+    [Benchmark]
+    public long PooledProductionReader() => _pooledReader.Read(ConsumeChunk);
 
     [Benchmark]
     public long MemoryMappedSequential()
