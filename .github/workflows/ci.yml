@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+
+      - name: Restore
+        run: dotnet restore BigJsonViewer.slnx
+
+      - name: Build
+        run: dotnet build BigJsonViewer.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test BigJsonViewer.slnx --configuration Release --no-build --logger "console;verbosity=normal"
+
+      - name: Check formatting
+        run: dotnet format BigJsonViewer.slnx --no-restore --verify-no-changes
+

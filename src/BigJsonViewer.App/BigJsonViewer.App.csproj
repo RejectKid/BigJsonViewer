@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>BigJsonViewer</AssemblyName>
+    <RootNamespace>BigJsonViewer.App</RootNamespace>
+    <ApplicationTitle>BigJsonViewer</ApplicationTitle>
+    <Product>BigJsonViewer</Product>
+    <IsAotCompatible>true</IsAotCompatible>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.0" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BigJsonViewer.Core\BigJsonViewer.Core.csproj" />
+    <ProjectReference Include="..\BigJsonViewer.Storage\BigJsonViewer.Storage.csproj" />
+    <ProjectReference Include="..\BigJsonViewer.Indexing\BigJsonViewer.Indexing.csproj" />
+    <ProjectReference Include="..\BigJsonViewer.Search\BigJsonViewer.Search.csproj" />
+  </ItemGroup>
+</Project>

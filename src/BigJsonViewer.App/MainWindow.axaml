@@ -1,0 +1,39 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+        x:Class="BigJsonViewer.App.MainWindow"
+        x:CompileBindings="True"
+        Width="1100"
+        Height="700"
+        MinWidth="760"
+        MinHeight="480"
+        Title="BigJsonViewer">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Border Grid.Row="0" Padding="18,12" BorderBrush="{DynamicResource ThemeBorderLowBrush}" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <TextBlock VerticalAlignment="Center" FontSize="20" FontWeight="SemiBold" Text="BigJsonViewer" />
+                <TextBlock Grid.Column="1" Margin="16,0" VerticalAlignment="Center" Foreground="{DynamicResource ThemeForegroundLowBrush}" Text="Fast, bounded-memory JSON exploration" />
+                <Button Grid.Column="2" Padding="18,8" Click="OpenFile" Content="Open JSON file" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="32" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="680">
+            <StackPanel Spacing="14" HorizontalAlignment="Center">
+                <Border Width="72" Height="72" CornerRadius="18" Background="{DynamicResource AccentFillColorDefaultBrush}">
+                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas,Monospace" FontSize="18" FontWeight="Bold" Text="JSON" />
+                </Border>
+                <TextBlock HorizontalAlignment="Center" FontSize="28" FontWeight="SemiBold" Text="Open JSON without loading it all into memory" />
+                <TextBlock HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" Foreground="{DynamicResource ThemeForegroundLowBrush}"
+                           Text="The storage, indexing, and search engines are isolated from the UI so they can be benchmarked and optimized independently." />
+                <Button Margin="0,10,0,0" HorizontalAlignment="Center" Padding="24,10" Click="OpenFile" Content="Choose a file" />
+                <TextBlock x:Name="SelectionStatus" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="2" Padding="18,9" BorderBrush="{DynamicResource ThemeBorderLowBrush}" BorderThickness="0,1,0,0">
+            <TextBlock FontSize="12" Foreground="{DynamicResource ThemeForegroundLowBrush}" Text="Foundation build · .NET 10 · Avalonia 12 · Native AOT ready" />
+        </Border>
+    </Grid>
+</Window>

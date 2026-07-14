@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: ${{ matrix.rid }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: windows-latest
+            rid: win-arm64
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: ubuntu-24.04-arm
+            rid: linux-arm64
+          - os: macos-15-intel
+            rid: osx-x64
+          - os: macos-latest
+            rid: osx-arm64
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Test
+        run: dotnet test BigJsonViewer.slnx --configuration Release
+
+      - name: Publish Native AOT
+        shell: pwsh
+        run: >-
+          dotnet publish src/BigJsonViewer.App/BigJsonViewer.App.csproj
+          --configuration Release
+          --runtime ${{ matrix.rid }}
+          --self-contained true
+          -p:PublishAot=true
+          -p:DebugType=None
+          -p:DebugSymbols=false
+          --output artifacts/publish/${{ matrix.rid }}
+
+      - name: Package
+        shell: pwsh
+        run: Compress-Archive -Path 'artifacts/publish/${{ matrix.rid }}/*' -DestinationPath 'BigJsonViewer-${{ github.ref_name }}-${{ matrix.rid }}.zip'
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: BigJsonViewer-${{ matrix.rid }}
+          path: BigJsonViewer-${{ github.ref_name }}-${{ matrix.rid }}.zip
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" artifacts/*.zip --repo "${GITHUB_REPOSITORY}" --verify-tag --generate-notes --title "BigJsonViewer ${GITHUB_REF_NAME}"
+
