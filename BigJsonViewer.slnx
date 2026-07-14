@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/BigJsonViewer.BenchmarkKernels/BigJsonViewer.BenchmarkKernels.csproj" />
+    <Project Path="benchmarks/BigJsonViewer.Benchmarks/BigJsonViewer.Benchmarks.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/BigJsonViewer.App/BigJsonViewer.App.csproj" />
     <Project Path="src/BigJsonViewer.Core/BigJsonViewer.Core.csproj" />
