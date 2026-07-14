@@ -7,7 +7,7 @@ The benchmark harness measures the decisions that directly affect large-file per
 | Class | Comparison |
 |---|---|
 | `SequentialReadBenchmarks` | sequential `FileStream`, positional `RandomAccess`, and memory-mapped stream reads |
-| `RandomAccessBenchmarks` | positional and memory-mapped reads at deterministic offsets |
+| `RandomAccessBenchmarks` | positional, memory-mapped, warm window-cache, and cache-thrashing reads at deterministic offsets |
 | `StructuralScanBenchmarks` | scalar JSON structural scanning versus `SearchValues<byte>` candidate scanning |
 | `Utf8DecodeBenchmarks` | strict UTF-8 validation/counting versus decoding into a reusable buffer |
 | `IndexEncodingBenchmarks` | fixed-width 64-bit offsets versus delta-varint encoding |

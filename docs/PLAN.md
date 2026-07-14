@@ -24,7 +24,7 @@ Exit condition: benchmark results identify the preferred window size, buffer siz
 ## 2. Source storage layer
 
 - [x] Implement pooled sequential reading with configurable 4–32 MB buffers.
-- [ ] Implement a bounded random-access window cache using positional reads.
+- [x] Implement a bounded random-access window cache using positional reads.
 - [ ] Prototype memory-mapped windows and compare them with positional reads.
 - [ ] Detect source identity using length, modification time, and sampled content hashes.
 - [ ] Detect BOM, probable encoding, JSON/JSON Lines mode, sparse files, and compressed inputs.
