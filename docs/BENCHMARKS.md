@@ -51,6 +51,8 @@ Every run also writes `environment.json` and `environment.md` beside the results
 
 The **Performance benchmarks** GitHub Actions workflow runs a small Short profile when benchmark code changes. It can also be started manually with a 1 GiB or 10 GiB corpus, a Short or Medium job, and storage/scanning/indexing filters. Each Windows, Linux, and macOS job uploads a self-contained report artifact for 14 days.
 
+The harness also accepts `--group all`, `--group storage`, `--group scanning`, or `--group indexing`. Group expansion happens inside the .NET process so wildcard filters behave identically across shells and operating systems.
+
 Hosted-runner results verify portability and expose large differences between candidate approaches. They do not enforce absolute timing thresholds because runner hardware and background load are not stable. See [initial performance budgets](PERFORMANCE_BUDGETS.md) for the reference profiles and acceptance criteria.
 
 ## Large storage runs

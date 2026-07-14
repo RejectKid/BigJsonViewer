@@ -96,16 +96,29 @@ jobs:
           if ([string]::IsNullOrWhiteSpace($job)) { $job = 'Short' }
           $group = '${{ inputs.group }}'
           if ([string]::IsNullOrWhiteSpace($group)) { $group = 'all' }
-          $filters = switch ($group) {
-            'storage' { @('*SequentialReadBenchmarks*', '*RandomAccessBenchmarks*') }
-            'scanning' { @('*StructuralScanBenchmarks*', '*Utf8DecodeBenchmarks*') }
-            'indexing' { @('*IndexEncodingBenchmarks*') }
-            default { @('*') }
+          $expectedReports = switch ($group) {
+            'storage' { 2 }
+            'scanning' { 2 }
+            'indexing' { 1 }
+            default { 5 }
           }
 
           dotnet run --project benchmarks/BigJsonViewer.Benchmarks `
             --configuration Release --no-build -- `
-            --job $job --artifacts $env:BIGJSONVIEWER_BENCHMARK_ARTIFACTS --filter $filters
+            --job $job --artifacts $env:BIGJSONVIEWER_BENCHMARK_ARTIFACTS --group $group
+
+          $reports = @(Get-ChildItem `
+            (Join-Path $env:BIGJSONVIEWER_BENCHMARK_ARTIFACTS 'results') `
+            -Filter '*-report-full.json' -File)
+          $metrics = @(Get-ChildItem `
+            (Join-Path $env:BIGJSONVIEWER_BENCHMARK_ARTIFACTS 'process-metrics') `
+            -Filter '*.json' -File)
+          if ($reports.Count -ne $expectedReports) {
+            throw "Expected $expectedReports benchmark reports, found $($reports.Count)."
+          }
+          if ($metrics.Count -eq 0) {
+            throw 'No benchmark process metrics were produced.'
+          }
 
       - name: Upload benchmark reports
         if: always()
