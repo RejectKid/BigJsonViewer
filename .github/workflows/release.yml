@@ -31,10 +31,10 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 
@@ -58,7 +58,7 @@ jobs:
         run: Compress-Archive -Path 'artifacts/publish/${{ matrix.rid }}/*' -DestinationPath 'BigJsonViewer-${{ github.ref_name }}-${{ matrix.rid }}.zip'
 
       - name: Upload package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: BigJsonViewer-${{ matrix.rid }}
           path: BigJsonViewer-${{ github.ref_name }}-${{ matrix.rid }}.zip
@@ -71,7 +71,7 @@ jobs:
 
     steps:
       - name: Download packages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
           merge-multiple: true
@@ -80,4 +80,3 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "${GITHUB_REF_NAME}" artifacts/*.zip --repo "${GITHUB_REPOSITORY}" --verify-tag --generate-notes --title "BigJsonViewer ${GITHUB_REF_NAME}"
-
