@@ -15,7 +15,7 @@ Exit condition: regular builds and tests pass on Windows, Linux, and macOS; rele
 
 - [x] Add a deterministic corpus generator rather than committing giant fixtures.
 - [x] Generate representative documents: deeply nested objects, billion-style wide arrays at reduced test scale, JSON Lines, minified data, large whitespace runs, escaped strings, invalid UTF-8, truncation, and very large scalar tokens.
-- [ ] Add BenchmarkDotNet projects for sequential throughput, positional reads, mapped-window access, structural scanning, UTF-8 decoding, and index encoding.
+- [x] Add BenchmarkDotNet projects for sequential throughput, positional reads, mapped-window access, structural scanning, UTF-8 decoding, and index encoding.
 - [ ] Capture hardware, storage type, OS, cold/warm cache state, throughput, allocations, working set, and p95 latency.
 - [ ] Establish initial budgets for 1 GB, 10 GB, and larger sparse/generated files.
 

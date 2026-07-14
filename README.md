@@ -66,6 +66,7 @@ The release workflow produces archives for Windows, Linux, and macOS on x64 and 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Step-by-step implementation plan](docs/PLAN.md)
 - [Corpus generator](docs/CORPUS_GENERATOR.md)
+- [Performance benchmarks](docs/BENCHMARKS.md)
 
 ## Performance principles
 
