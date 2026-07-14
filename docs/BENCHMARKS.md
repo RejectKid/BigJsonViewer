@@ -45,6 +45,16 @@ dotnet run --project benchmarks/BigJsonViewer.Benchmarks \
 
 BenchmarkDotNet writes CSV, HTML, JSON, and GitHub-flavored Markdown reports beneath `BenchmarkDotNet.Artifacts/results`. The directory is ignored by Git.
 
+Every run also writes `environment.json` and `environment.md` beside the results. Benchmark child processes capture peak working set and managed heap under `process-metrics`. Reports include a logical `MiB/s` column in addition to mean, p95, and allocation statistics.
+
+## Cross-platform workflow
+
+The **Performance benchmarks** GitHub Actions workflow runs a small Short profile when benchmark code changes. It can also be started manually with a 1 GiB or 10 GiB corpus, a Short or Medium job, and storage/scanning/indexing filters. Each Windows, Linux, and macOS job uploads a self-contained report artifact for 14 days.
+
+The harness also accepts `--group all`, `--group storage`, `--group scanning`, or `--group indexing`. Group expansion happens inside the .NET process so wildcard filters behave identically across shells and operating systems.
+
+Hosted-runner results verify portability and expose large differences between candidate approaches. They do not enforce absolute timing thresholds because runner hardware and background load are not stable. See [initial performance budgets](PERFORMANCE_BUDGETS.md) for the reference profiles and acceptance criteria.
+
 ## Large storage runs
 
 Generate the corpus outside the repository:
@@ -74,6 +84,12 @@ Environment variables:
 | `BIGJSONVIEWER_BENCHMARK_FILE` | generated fixture | Existing corpus used by file and memory benchmarks |
 | `BIGJSONVIEWER_BENCHMARK_SIZE` | `64MiB` | Size of an automatically generated fixture |
 | `BIGJSONVIEWER_BENCHMARK_MEMORY_SIZE` | `16MiB` | Maximum prefix loaded by in-memory benchmarks |
+| `BIGJSONVIEWER_BENCHMARK_CACHE_STATE` | `not-provided` | Declared cold/warm cache condition recorded with results |
+| `BIGJSONVIEWER_BENCHMARK_STORAGE` | `not-provided` | Storage device/interface label recorded with results |
+| `BIGJSONVIEWER_BENCHMARK_COMMIT` | `GITHUB_SHA` or `not-provided` | Source commit associated with the run |
+| `BIGJSONVIEWER_BENCHMARK_WORKTREE` | `not-provided` | Declared clean/dirty working-tree state |
+| `BIGJSONVIEWER_BENCHMARK_POWER_MODE` | `not-provided` | Power configuration associated with the run |
+| `BIGJSONVIEWER_BENCHMARK_BACKGROUND_ACTIVITY` | `not-provided` | Significant or uncontrolled background load |
 
 The configured file must be at least as large as the selected random-access window. The in-memory limit cannot exceed the .NET array-length limit.
 

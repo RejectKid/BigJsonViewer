@@ -1,0 +1,130 @@
+name: Performance benchmarks
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/benchmarks.yml'
+      - 'benchmarks/**'
+  workflow_dispatch:
+    inputs:
+      corpus_size:
+        description: Generated wide-array corpus size
+        required: true
+        default: 1GiB
+        type: choice
+        options:
+          - 1GiB
+          - 10GiB
+      job:
+        description: BenchmarkDotNet job
+        required: true
+        default: Short
+        type: choice
+        options:
+          - Short
+          - Medium
+      group:
+        description: Benchmark group
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - storage
+          - scanning
+          - indexing
+
+permissions:
+  contents: read
+
+concurrency:
+  group: benchmarks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+
+      - name: Restore and build
+        run: |
+          dotnet restore BigJsonViewer.slnx
+          dotnet build BigJsonViewer.slnx --configuration Release --no-restore
+
+      - name: Generate benchmark corpus
+        shell: pwsh
+        run: |
+          $size = '${{ inputs.corpus_size }}'
+          if ([string]::IsNullOrWhiteSpace($size)) { $size = '256MiB' }
+          $corpus = Join-Path $env:RUNNER_TEMP 'big-json-viewer-wide-array.json'
+          $artifacts = Join-Path $env:GITHUB_WORKSPACE "artifacts/benchmarks/$env:RUNNER_OS-$env:RUNNER_ARCH"
+          New-Item -ItemType Directory -Force -Path $artifacts | Out-Null
+
+          dotnet run --project tools/BigJsonViewer.CorpusGenerator `
+            --configuration Release --no-build -- `
+            --scenario wide-array --size $size --output $corpus --no-manifest
+
+          "BIGJSONVIEWER_BENCHMARK_FILE=$corpus" >> $env:GITHUB_ENV
+          "BIGJSONVIEWER_BENCHMARK_MEMORY_SIZE=64MiB" >> $env:GITHUB_ENV
+          "BIGJSONVIEWER_BENCHMARK_CACHE_STATE=warm-repeated" >> $env:GITHUB_ENV
+          "BIGJSONVIEWER_BENCHMARK_STORAGE=GitHub-hosted ephemeral runner storage" >> $env:GITHUB_ENV
+          "BIGJSONVIEWER_BENCHMARK_COMMIT=${{ github.sha }}" >> $env:GITHUB_ENV
+          "BIGJSONVIEWER_BENCHMARK_WORKTREE=clean checkout" >> $env:GITHUB_ENV
+          "BIGJSONVIEWER_BENCHMARK_POWER_MODE=runner default" >> $env:GITHUB_ENV
+          "BIGJSONVIEWER_BENCHMARK_BACKGROUND_ACTIVITY=shared hosted runner; uncontrolled" >> $env:GITHUB_ENV
+          "BIGJSONVIEWER_BENCHMARK_ARTIFACTS=$artifacts" >> $env:GITHUB_ENV
+
+      - name: Run benchmarks
+        shell: pwsh
+        run: |
+          $job = '${{ inputs.job }}'
+          if ([string]::IsNullOrWhiteSpace($job)) { $job = 'Short' }
+          $group = '${{ inputs.group }}'
+          if ([string]::IsNullOrWhiteSpace($group)) { $group = 'all' }
+          $expectedReports = switch ($group) {
+            'storage' { 2 }
+            'scanning' { 2 }
+            'indexing' { 1 }
+            default { 5 }
+          }
+
+          dotnet run --project benchmarks/BigJsonViewer.Benchmarks `
+            --configuration Release --no-build -- `
+            --job $job --artifacts $env:BIGJSONVIEWER_BENCHMARK_ARTIFACTS --group $group
+
+          $reports = @(Get-ChildItem `
+            (Join-Path $env:BIGJSONVIEWER_BENCHMARK_ARTIFACTS 'results') `
+            -Filter '*-report-full.json' -File)
+          $metrics = @(Get-ChildItem `
+            (Join-Path $env:BIGJSONVIEWER_BENCHMARK_ARTIFACTS 'process-metrics') `
+            -Filter '*.json' -File)
+          if ($reports.Count -ne $expectedReports) {
+            throw "Expected $expectedReports benchmark reports, found $($reports.Count)."
+          }
+          if ($metrics.Count -eq 0) {
+            throw 'No benchmark process metrics were produced.'
+          }
+
+      - name: Upload benchmark reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: benchmarks-${{ runner.os }}-${{ runner.arch }}
+          path: artifacts/benchmarks/${{ runner.os }}-${{ runner.arch }}
+          if-no-files-found: error
+          retention-days: 14

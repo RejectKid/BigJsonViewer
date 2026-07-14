@@ -29,6 +29,9 @@ public class IndexEncodingBenchmarks
         _varintBuffer = GC.AllocateUninitializedArray<byte>(checked(OffsetCount * 10));
     }
 
+    [GlobalCleanup]
+    public static void Cleanup() => BenchmarkProcessMetrics.Record(nameof(IndexEncodingBenchmarks));
+
     [Benchmark(Baseline = true)]
     public int Fixed64() => IndexEncoder.EncodeFixed64(_offsets, _fixedBuffer);
 

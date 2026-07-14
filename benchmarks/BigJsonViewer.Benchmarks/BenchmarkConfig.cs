@@ -9,6 +9,7 @@ public sealed class BenchmarkConfig : ManualConfig
     public BenchmarkConfig()
     {
         AddColumn(StatisticColumn.P95);
+        AddColumn(new ThroughputColumn());
         AddExporter(JsonExporter.Full);
     }
 }

@@ -38,6 +38,7 @@ public class RandomAccessBenchmarks
     [GlobalCleanup]
     public void Cleanup()
     {
+        BenchmarkProcessMetrics.Record(nameof(RandomAccessBenchmarks));
         _accessor.Dispose();
         _mapping.Dispose();
         _handle.Dispose();
