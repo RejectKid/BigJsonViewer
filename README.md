@@ -29,6 +29,17 @@ dotnet test BigJsonViewer.slnx
 dotnet run --project src/BigJsonViewer.App/BigJsonViewer.App.csproj
 ```
 
+Generate a deterministic large-file corpus without committing the generated data:
+
+```shell
+dotnet run --project tools/BigJsonViewer.CorpusGenerator -- \
+  --scenario wide-array \
+  --size 10GiB \
+  --output E:/BigJsonData/wide-10gib.json
+```
+
+See the [corpus generator guide](docs/CORPUS_GENERATOR.md) for scenarios, reproducibility guarantees, and adversarial inputs.
+
 Create a Native AOT build for the current operating system by selecting its runtime identifier:
 
 ```shell
@@ -54,6 +65,7 @@ The release workflow produces archives for Windows, Linux, and macOS on x64 and 
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Step-by-step implementation plan](docs/PLAN.md)
+- [Corpus generator](docs/CORPUS_GENERATOR.md)
 
 ## Performance principles
 
@@ -63,4 +75,3 @@ The release workflow produces archives for Windows, Linux, and macOS on x64 and 
 - Render only visible rows.
 - Make indexing and search incremental and cancellable.
 - Benchmark sequential reads, mappings, parsing, and index representations before committing to a format.
-

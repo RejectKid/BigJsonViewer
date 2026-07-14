@@ -13,11 +13,11 @@ Exit condition: regular builds and tests pass on Windows, Linux, and macOS; rele
 
 ## 1. Performance corpus and benchmark harness
 
-1. Add a deterministic corpus generator rather than committing giant fixtures.
-2. Generate representative documents: deeply nested objects, billion-style wide arrays at reduced test scale, JSON Lines, minified data, large whitespace runs, escaped strings, invalid UTF-8, truncation, and very large scalar tokens.
-3. Add BenchmarkDotNet projects for sequential throughput, positional reads, mapped-window access, structural scanning, UTF-8 decoding, and index encoding.
-4. Capture hardware, storage type, OS, cold/warm cache state, throughput, allocations, working set, and p95 latency.
-5. Establish initial budgets for 1 GB, 10 GB, and larger sparse/generated files.
+- [x] Add a deterministic corpus generator rather than committing giant fixtures.
+- [x] Generate representative documents: deeply nested objects, billion-style wide arrays at reduced test scale, JSON Lines, minified data, large whitespace runs, escaped strings, invalid UTF-8, truncation, and very large scalar tokens.
+- [ ] Add BenchmarkDotNet projects for sequential throughput, positional reads, mapped-window access, structural scanning, UTF-8 decoding, and index encoding.
+- [ ] Capture hardware, storage type, OS, cold/warm cache state, throughput, allocations, working set, and p95 latency.
+- [ ] Establish initial budgets for 1 GB, 10 GB, and larger sparse/generated files.
 
 Exit condition: benchmark results identify the preferred window size, buffer size, and initial structural scanning strategy on all three operating systems.
 
@@ -121,4 +121,3 @@ These targets should be revised after milestone 1 establishes real baselines:
 - Search results are delivered in batches with first-result latency below one second when matches occur near the beginning of a local file.
 - Cancellation is observed within 250 ms outside an uninterruptible operating-system read.
 - No UI collection contains all nodes or all search matches.
-
