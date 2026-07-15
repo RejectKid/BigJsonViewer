@@ -21,93 +21,93 @@ Exit condition: regular builds and tests pass on Windows, Linux, and macOS; rele
 
 Exit condition: benchmark results identify the preferred window size, buffer size, and initial structural scanning strategy on all three operating systems.
 
-## 2. Source storage layer
+## 2. Source storage layer — usable implementation complete
 
 - [x] Implement pooled sequential reading with configurable 4–32 MB buffers.
 - [x] Implement a bounded random-access window cache using positional reads.
-- [ ] Prototype memory-mapped windows and compare them with positional reads.
-- [ ] Detect source identity using length, modification time, and sampled content hashes.
-- [ ] Detect BOM, probable encoding, JSON/JSON Lines mode, sparse files, and compressed inputs.
-- [ ] Detect modification or replacement while a file is open and transition the session safely to stale state.
+- [x] Prototype bounded memory-mapped views and compare them with positional reads.
+- [x] Detect source identity using length, modification time, and sampled content hashes.
+- [x] Detect BOM, probable encoding, JSON/JSON Lines mode, sparse files, and compressed inputs.
+- [x] Detect modification or replacement while a file is open and transition the session safely to stale state.
 
 Exit condition: stable memory usage while scanning files larger than RAM, with correct reads across every buffer/window boundary.
 
-## 3. Structural scanner
+## 3. Structural scanner — usable implementation complete
 
-1. Implement a scalar reference scanner for quotes, escapes, braces, brackets, commas, colons, and whitespace.
-2. Maintain lexical state across buffer boundaries.
-3. Add optimized span-based scanning using framework-vectorized primitives; use explicit SIMD only when benchmarks show a win.
-4. Record container boundaries, property-name ranges, scalar ranges, parent relationships, child counts, and validation errors.
-5. Handle giant tokens as source ranges without copying them into a contiguous managed buffer.
-6. Add `Utf8JsonReader` validation for bounded tokens and compare error locations against the reference scanner.
-7. Fuzz chunk boundaries and malformed inputs.
+- [x] Keep the benchmarked scalar/reference scanner and implement the production span-streaming structural state machine.
+- [x] Maintain quotes, escapes, grammar, primitive-number/literal, and container state across every buffer boundary.
+- [x] Record container, property-name, scalar, parent, child-count, first-child, and subtree ranges.
+- [x] Represent giant tokens as 64-bit source ranges without contiguous copies.
+- [x] Report actionable absolute byte offsets for structural failures.
+- [x] Test malformed input and tokens crossing the 4 MiB production boundary.
+- [ ] Add explicit SIMD only if full indexing benchmarks show a repeatable cross-platform win over the current storage-bound scan.
 
 Exit condition: scanner correctness matches the reference implementation, memory remains bounded, and throughput approaches available storage bandwidth on representative data.
 
-## 4. Persistent `.bjx` index
+## 4. Persistent `.bjx` index — usable version 3 complete
 
-1. Prototype fixed-record, delta-encoded, and checkpointed representations.
-2. Define a versioned header containing source identity, format version, feature flags, and build state.
-3. Store pages append-only with checksums and committed high-water marks.
-4. Support recovery or safe rebuild after cancellation, crash, disk-full, and source changes.
-5. Use adaptive child checkpoints for enormous arrays/objects rather than a heavyweight record per value.
-6. Implement a read-only paged index reader with a bounded cache.
-7. Measure index size, build throughput, and random child-access latency.
+- [x] Compare fixed and delta-varint representations and ship compact scalar records with 64-node checkpoints.
+- [x] Define a checksummed versioned header containing source identity, format, node count, checkpoints, and build state.
+- [x] Use checksummed fixed records only for patchable containers and compact varints for scalar nodes.
+- [x] Publish atomically only after a second source-identity sample; clean temporary state after cancellation/failure.
+- [x] Jump between direct children using pre-order subtree ends rather than heavyweight sibling records.
+- [x] Implement a read-only reader over a bounded 4 MiB page cache.
+- [x] Measure the dense 658,402-node fixture: about 15 MiB versus 52.7 MiB for the original fixed prototype.
 
 Exit condition: reopening an indexed document is fast, interrupted builds never masquerade as complete, and index overhead meets the selected size budget.
 
-## 5. Virtual tree MVP
+## 5. Virtual tree MVP — complete
 
-1. Add file open, recent files, drag-and-drop, and session lifecycle.
-2. Display indexing progress without blocking navigation already made possible by committed pages.
-3. Implement the flat visible-row model with expand, collapse, and paged children.
-4. Render key, type, compact value preview, child count, and loading/error state.
-5. Add keyboard navigation, JSON Pointer breadcrumbs, copy pointer, and copy bounded value.
-6. Add an LRU preview cache and cancel work for rows that leave the viewport.
-7. Test million-row synthetic models without constructing a million controls.
+- [x] Add file open, recent files, drag-and-drop, atomic indexing progress, and session lifecycle.
+- [x] Implement the flat visible-row model with expand, collapse, and 250-child pages.
+- [x] Render key/index, type, compact value preview, child count, loading, and error state.
+- [x] Retain native keyboard list navigation and add JSON Pointer copy.
+- [x] Use the bounded source cache for previews and cancel superseded row work.
+- [x] Interaction-test a 658,402-node synthetic index without constructing all controls.
 
 Exit condition: scrolling and interaction remain responsive while indexing and preview decoding run concurrently.
 
-## 6. Search MVP
+## 6. Search MVP — complete
 
-1. Implement UTF-8 byte search with cancellable partitioned workers.
-2. Correctly classify matches inside/outside strings and account for escapes.
-3. Add property-name, string-value, exact scalar, type, and path-restricted modes.
-4. Stream result batches through bounded channels into a disk-backed paged result store.
-5. Add result previews and navigation without allocating one view model per match.
-6. Cache reusable query results only within explicit disk and memory budgets.
+- [x] Implement cancellable sequential UTF-8 search that follows storage bandwidth without whole-file decoding.
+- [x] Carry lexical escape/container state and classify property names, string values, and outside-string matches.
+- [x] Restrict searches to the selected subtree's exact source range.
+- [x] Stream bounded progress batches into a temporary disk-backed result store.
+- [x] Page 500 result view models at a time and navigate to bounded raw previews.
+- [x] Delete result stores when replaced or closed; do not retain implicit query caches.
 
 Exit condition: first results appear quickly, cancellation is prompt, the UI stays responsive, and match count does not control heap usage.
 
-## 7. Table and raw-source views
+## 7. Table and raw-source views — usable implementation complete
 
-1. Detect arrays of similarly shaped objects using bounded sampling.
-2. Add a virtualized table view with user-selectable columns.
-3. Add a raw-source viewport around the selected range; never put the whole file into a text editor control.
-4. Add bounded pretty-printing for a selected subtree and streamed export for large subtrees.
-5. Add a chunked inspector for exceptionally large strings.
+- [x] Sample at most 50 array rows and 32 object cells without constructing a whole table model.
+- [x] Add a raw-source viewport around selections and search matches.
+- [x] Add bounded pretty-printing with raw fallback.
+- [x] Stream exact subtree export in 1 MiB chunks.
+- [x] Inspect exceptionally large strings through bounded source previews.
 
 Exit condition: table, tree, and raw views share node identities and selection without duplicating document data.
 
-## 8. Hardening and observability
+## 8. Hardening and observability — release baseline complete
 
-1. Add structured diagnostics for throughput, cache hit rate, queue depth, allocations, and long UI frames.
-2. Test network shares, removable drives, read-only locations, low disk space, permission changes, and slow storage.
-3. Add explicit limits for nesting depth, preview length, cached pages, outstanding work, and retained results.
-4. Fuzz scanner and index reader inputs; treat sidecars as untrusted data.
-5. Run soak tests while repeatedly opening, searching, cancelling, and closing large files.
-6. Profile Native AOT builds on every supported architecture.
+- [x] Surface source/index cache hit/miss diagnostics and coarse indexing/search progress.
+- [x] Store indexes outside source directories so read-only sources are supported.
+- [x] Enforce explicit depth, preview, cache, child-page, result-page, table, and query limits.
+- [x] Validate headers, checkpoints, records, parent chains, truncation, cancellation, and corrupt sidecars.
+- [x] Exercise repeated open, expand, search, cancel, and close workflows in the rendered Windows app.
+- [x] Publish Native AOT PR previews on Windows, Linux, and macOS.
+- [ ] Expand hardware lab coverage for removable/network/low-disk scenarios as those environments become available.
 
 Exit condition: corrupted or hostile inputs produce bounded, actionable failures without hangs or runaway allocation.
 
-## 9. Product-quality releases
+## 9. Product-quality releases — portable release complete
 
-1. Add icons, platform metadata, signing, and notarization.
-2. Produce Windows installer, macOS app bundle/DMG, and Linux AppImage or distro packages in addition to portable archives.
-3. Generate checksums and a software bill of materials.
-4. Add crash-reporting only as an explicit privacy-conscious opt-in.
-5. Document index compatibility, privacy, troubleshooting, performance expectations, and unsupported cases.
-6. Define semantic-versioning rules and a release checklist.
+- [x] Produce portable Native AOT archives for six OS/architecture targets.
+- [x] Generate release SHA-256 checksums.
+- [x] Keep telemetry/crash uploads absent by default.
+- [x] Document index compatibility, privacy, troubleshooting, performance expectations, and unsupported inputs.
+- [x] Define semantic-versioning rules and a release checklist.
+- [ ] Add signed installers, macOS notarization, AppImage/distro packages, and SBOM attestation when release-owner credentials and distribution identities are available.
 
 Exit condition: signed, reproducible release candidates install and update cleanly on supported systems.
 

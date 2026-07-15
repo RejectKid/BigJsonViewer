@@ -6,4 +6,6 @@ public readonly record struct IndexedNode(
     SourceRange Range,
     SourceRange NameRange,
     long ChildCount,
-    JsonNodeKind Kind);
+    JsonNodeKind Kind,
+    long FirstChildId = -1,
+    long SubtreeEndId = -1);

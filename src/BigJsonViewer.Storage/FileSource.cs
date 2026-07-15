@@ -9,7 +9,12 @@ public sealed class FileSource : IRandomAccessSource
     public FileSource(string path)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
-        _handle = File.OpenHandle(path, FileMode.Open, FileAccess.Read, FileShare.Read, FileOptions.Asynchronous | FileOptions.RandomAccess);
+        _handle = File.OpenHandle(
+            path,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.ReadWrite | FileShare.Delete,
+            FileOptions.Asynchronous | FileOptions.RandomAccess);
         Length = RandomAccess.GetLength(_handle);
     }
 

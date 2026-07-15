@@ -29,7 +29,7 @@ public sealed class PooledSequentialFileReader : IDisposable
             path,
             FileMode.Open,
             FileAccess.Read,
-            FileShare.Read,
+            FileShare.ReadWrite | FileShare.Delete,
             FileOptions.SequentialScan);
         Length = RandomAccess.GetLength(_handle);
     }

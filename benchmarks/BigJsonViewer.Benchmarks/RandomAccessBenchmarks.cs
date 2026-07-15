@@ -14,6 +14,7 @@ public class RandomAccessBenchmarks
     private SafeFileHandle _handle = null!;
     private MemoryMappedFile _mapping = null!;
     private MemoryMappedViewAccessor _accessor = null!;
+    private MemoryMappedFileSource _mappedSource = null!;
     private RandomAccessWindowCache _cache = null!;
     private byte[] _buffer = null!;
     private long[] _offsets = null!;
@@ -34,6 +35,7 @@ public class RandomAccessBenchmarks
         _handle = File.OpenHandle(_corpus.Path, FileMode.Open, FileAccess.Read, FileShare.Read, FileOptions.RandomAccess);
         _mapping = MemoryMappedFile.CreateFromFile(_corpus.Path, FileMode.Open, null, 0, MemoryMappedFileAccess.Read);
         _accessor = _mapping.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
+        _mappedSource = new MemoryMappedFileSource(_corpus.Path);
         _cache = new RandomAccessWindowCache(
             new FileSource(_corpus.Path),
             new RandomAccessWindowCacheOptions(
@@ -56,6 +58,7 @@ public class RandomAccessBenchmarks
     {
         BenchmarkProcessMetrics.Record(nameof(RandomAccessBenchmarks));
         await _cache.DisposeAsync();
+        await _mappedSource.DisposeAsync();
         _accessor.Dispose();
         _mapping.Dispose();
         _handle.Dispose();
@@ -81,6 +84,18 @@ public class RandomAccessBenchmarks
         foreach (var offset in _offsets)
         {
             total += _accessor.ReadArray(offset, _buffer, 0, WindowSize);
+        }
+
+        return total;
+    }
+
+    [Benchmark(OperationsPerInvoke = ReadsPerInvocation)]
+    public async Task<long> BoundedMappedViews()
+    {
+        long total = 0;
+        foreach (var offset in _offsets)
+        {
+            total += await _mappedSource.ReadAsync(offset, _buffer);
         }
 
         return total;
