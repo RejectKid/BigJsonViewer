@@ -4,53 +4,274 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="using:BigJsonViewer.App"
         mc:Ignorable="d"
-        d:DesignWidth="1280"
-        d:DesignHeight="800"
+        d:DesignWidth="1440"
+        d:DesignHeight="900"
         x:Class="BigJsonViewer.App.MainWindow"
         x:CompileBindings="True"
-        Width="1280"
-        Height="800"
-        MinWidth="900"
-        MinHeight="560"
+        Width="1440"
+        Height="900"
+        MinWidth="980"
+        MinHeight="640"
+        Background="{DynamicResource AppBackgroundBrush}"
         Title="BigJsonViewer">
-    <Grid RowDefinitions="Auto,Auto,*,Auto">
-        <Border Grid.Row="0" Padding="14,10" BorderBrush="{DynamicResource ThemeBorderLowBrush}" BorderThickness="0,0,0,1">
-            <Grid ColumnDefinitions="Auto,*,190,240,Auto,Auto,Auto,Auto" ColumnSpacing="8">
-                <Button Grid.Column="0" Padding="18,8" Click="OpenFile" Content="Open JSON" />
-                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock x:Name="FileNameText" FontWeight="SemiBold" Text="No file open" />
-                    <TextBlock x:Name="FileDetailsText" FontSize="11" Foreground="{DynamicResource ThemeForegroundLowBrush}" Text="Open a UTF-8 JSON or JSON Lines file to begin." />
+    <Grid RowDefinitions="72,58,3,*,40">
+        <!-- App header -->
+        <Border Grid.Row="0"
+                Padding="22,0"
+                Background="{DynamicResource SurfaceBrush}"
+                BorderBrush="{DynamicResource AppBorderSoftBrush}"
+                BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto" ColumnSpacing="14">
+                <Border Grid.Column="0"
+                        Width="38"
+                        Height="38"
+                        VerticalAlignment="Center"
+                        CornerRadius="10"
+                        Background="{DynamicResource AccentBrush}">
+                    <TextBlock HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               FontFamily="Cascadia Mono,Consolas,Monospace"
+                               FontSize="17"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               Text="{}{ }" />
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
+                    <TextBlock FontSize="17" FontWeight="Bold" Text="BigJsonViewer" />
+                    <TextBlock FontSize="10"
+                               Foreground="{DynamicResource AppSubtleBrush}"
+                               Text="LARGE-FILE WORKSPACE" />
                 </StackPanel>
-                <ComboBox x:Name="RecentFilesBox" Grid.Column="2" PlaceholderText="Recent files" SelectionChanged="RecentFileSelected" />
-                <TextBox x:Name="SearchBox" Grid.Column="3" PlaceholderText="Search UTF-8 text…" KeyDown="SearchBoxKeyDown" />
-                <ComboBox x:Name="SearchModeBox" Grid.Column="4" SelectedIndex="0" MinWidth="120">
+
+                <StackPanel Grid.Column="2"
+                            Margin="22,0,0,0"
+                            VerticalAlignment="Center"
+                            Spacing="2">
+                    <TextBlock x:Name="FileNameText"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Text="No document open" />
+                    <TextBlock x:Name="FileDetailsText"
+                               MaxWidth="560"
+                               FontSize="11"
+                               Foreground="{DynamicResource AppMutedBrush}"
+                               Text="Open a JSON or JSON Lines file to begin"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+
+                <ComboBox x:Name="RecentFilesBox"
+                          Grid.Column="3"
+                          Width="190"
+                          VerticalAlignment="Center"
+                          PlaceholderText="Recent files"
+                          SelectionChanged="RecentFileSelected" />
+                <Button Grid.Column="4"
+                        Classes="primary"
+                        VerticalAlignment="Center"
+                        Click="OpenFile">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock FontSize="17" FontWeight="Normal" Text="＋" />
+                        <TextBlock VerticalAlignment="Center" Text="Open file" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Search command bar -->
+        <Border Grid.Row="1"
+                Padding="22,9"
+                Background="{DynamicResource SurfaceBrush}"
+                BorderBrush="{DynamicResource AppBorderSoftBrush}"
+                BorderThickness="0,0,0,1">
+            <Grid x:Name="SearchCommandBar"
+                  ColumnDefinitions="*,150,Auto,Auto,36"
+                  ColumnSpacing="9">
+                <Grid Grid.Column="0">
+                    <TextBox x:Name="SearchBox"
+                             Padding="38,8,12,8"
+                             IsEnabled="False"
+                             PlaceholderText="Search keys, values, or raw JSON…"
+                             KeyDown="SearchBoxKeyDown" />
+                    <TextBlock Margin="13,0,0,0"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Center"
+                               FontSize="16"
+                               Foreground="{DynamicResource AppSubtleBrush}"
+                               IsHitTestVisible="False"
+                               Text="⌕" />
+                </Grid>
+                <ComboBox x:Name="SearchModeBox" Grid.Column="1" IsEnabled="False" SelectedIndex="0">
                     <ComboBoxItem Content="Anywhere" />
                     <ComboBoxItem Content="String values" />
                     <ComboBoxItem Content="Property names" />
                     <ComboBoxItem Content="Scalars / syntax" />
                 </ComboBox>
-                <CheckBox x:Name="SelectedSubtreeOnly" Grid.Column="5" VerticalAlignment="Center" Content="Selected subtree" />
-                <Button Grid.Column="6" Click="StartSearch" Content="Search" />
-                <Button Grid.Column="7" Click="CancelOperation" Content="Cancel" />
+                <CheckBox x:Name="SelectedSubtreeOnly"
+                          Grid.Column="2"
+                          Margin="6,0"
+                          IsEnabled="False"
+                          VerticalAlignment="Center"
+                          Content="Selected subtree" />
+                <Button x:Name="SearchButton"
+                        Grid.Column="3"
+                        Classes="primary"
+                        Padding="18,8"
+                        IsEnabled="False"
+                        Click="StartSearch"
+                        Content="Search" />
+                <Button x:Name="CancelButton"
+                        Grid.Column="4"
+                        Classes="icon ghost"
+                        IsEnabled="False"
+                        ToolTip.Tip="Cancel current operation"
+                        Click="CancelOperation"
+                        Content="×" />
             </Grid>
         </Border>
 
-        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="14,7">
-            <ProgressBar x:Name="OperationProgress" Grid.Column="0" Height="4" Minimum="0" Maximum="1" Value="0" />
-            <TextBlock x:Name="OperationText" Grid.Column="1" Margin="12,0,0,0" FontSize="11" Text="Ready" />
+        <ProgressBar x:Name="OperationProgress"
+                     Grid.Row="2"
+                     Height="3"
+                     Minimum="0"
+                     Maximum="1"
+                     Value="0" />
+
+        <!-- Empty state -->
+        <Grid x:Name="WelcomePanel" Grid.Row="3">
+            <StackPanel Width="650"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="24">
+                <Border Width="72"
+                        Height="72"
+                        HorizontalAlignment="Center"
+                        CornerRadius="20"
+                        Background="{DynamicResource AccentSoftBrush}"
+                        BorderBrush="{DynamicResource AccentBrush}"
+                        BorderThickness="1">
+                    <TextBlock HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               FontFamily="Cascadia Mono,Consolas,Monospace"
+                               FontSize="26"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource AccentBrush}"
+                               Text="{}{ }" />
+                </Border>
+                <StackPanel Spacing="8">
+                    <TextBlock HorizontalAlignment="Center"
+                               FontSize="30"
+                               FontWeight="Bold"
+                               Text="Explore JSON without the wait" />
+                    <TextBlock MaxWidth="540"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               FontSize="14"
+                               LineHeight="22"
+                               Foreground="{DynamicResource AppMutedBrush}"
+                               Text="Open files far larger than memory. BigJsonViewer builds a compact structural index while keeping previews, search, and navigation bounded." />
+                </StackPanel>
+                <Button Classes="primary"
+                        HorizontalAlignment="Center"
+                        Padding="24,12"
+                        Click="OpenFile">
+                    <StackPanel Orientation="Horizontal" Spacing="9">
+                        <TextBlock FontSize="18" FontWeight="Normal" Text="＋" />
+                        <TextBlock VerticalAlignment="Center" Text="Choose a JSON file" />
+                    </StackPanel>
+                </Button>
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+                    <Border Grid.Column="0"
+                            Padding="16"
+                            CornerRadius="10"
+                            Background="{DynamicResource SurfaceBrush}"
+                            BorderBrush="{DynamicResource AppBorderSoftBrush}"
+                            BorderThickness="1">
+                        <StackPanel Spacing="7">
+                            <TextBlock FontSize="17" Foreground="{DynamicResource SuccessBrush}" Text="◇" />
+                            <TextBlock FontWeight="SemiBold" Text="Bounded memory" />
+                            <TextBlock FontSize="11" Foreground="{DynamicResource AppMutedBrush}" Text="Designed for 10 GB+ files" />
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1"
+                            Padding="16"
+                            CornerRadius="10"
+                            Background="{DynamicResource SurfaceBrush}"
+                            BorderBrush="{DynamicResource AppBorderSoftBrush}"
+                            BorderThickness="1">
+                        <StackPanel Spacing="7">
+                            <TextBlock FontSize="17" Foreground="{DynamicResource AccentBrush}" Text="⌕" />
+                            <TextBlock FontWeight="SemiBold" Text="Streaming search" />
+                            <TextBlock FontSize="11" Foreground="{DynamicResource AppMutedBrush}" Text="Search without loading it all" />
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="2"
+                            Padding="16"
+                            CornerRadius="10"
+                            Background="{DynamicResource SurfaceBrush}"
+                            BorderBrush="{DynamicResource AppBorderSoftBrush}"
+                            BorderThickness="1">
+                        <StackPanel Spacing="7">
+                            <TextBlock FontSize="17" Foreground="{DynamicResource WarningBrush}" Text="↗" />
+                            <TextBlock FontWeight="SemiBold" Text="Export subtrees" />
+                            <TextBlock FontSize="11" Foreground="{DynamicResource AppMutedBrush}" Text="Work with only what you need" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+                <TextBlock HorizontalAlignment="Center"
+                           FontSize="11"
+                           Foreground="{DynamicResource AppSubtleBrush}"
+                           Text="JSON · JSON Lines · UTF-8 · drag and drop supported" />
+            </StackPanel>
         </Grid>
 
-        <Grid Grid.Row="2" ColumnDefinitions="5*,6*" Margin="14,0,14,10" ColumnSpacing="10">
-            <Border Grid.Column="0" BorderBrush="{DynamicResource ThemeBorderLowBrush}" BorderThickness="1" CornerRadius="5">
-                <Grid RowDefinitions="Auto,*">
-                    <TextBlock Grid.Row="0" Margin="10,8" FontWeight="SemiBold" Text="Structure" />
-                    <ListBox x:Name="TreeRows" Grid.Row="1" SelectionChanged="TreeSelectionChanged">
+        <!-- Loaded document workspace -->
+        <Grid x:Name="WorkspaceGrid"
+              Grid.Row="3"
+              Margin="16"
+              ColumnDefinitions="360,*"
+              ColumnSpacing="12"
+              IsVisible="False">
+            <Border Grid.Column="0"
+                    CornerRadius="12"
+                    Background="{DynamicResource SurfaceBrush}"
+                    BorderBrush="{DynamicResource AppBorderSoftBrush}"
+                    BorderThickness="1">
+                <Grid RowDefinitions="60,*">
+                    <Border Grid.Row="0"
+                            Padding="16,0"
+                            BorderBrush="{DynamicResource AppBorderSoftBrush}"
+                            BorderThickness="0,0,0,1">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel VerticalAlignment="Center" Spacing="2">
+                                <TextBlock FontSize="14" FontWeight="SemiBold" Text="Document structure" />
+                                <TextBlock FontSize="10"
+                                           Foreground="{DynamicResource AppMutedBrush}"
+                                           Text="Expand nodes to browse the index" />
+                            </StackPanel>
+                            <Border Grid.Column="1"
+                                    Padding="8,4"
+                                    VerticalAlignment="Center"
+                                    CornerRadius="10"
+                                    Background="{DynamicResource SuccessSoftBrush}">
+                                <TextBlock FontSize="10"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SuccessBrush}"
+                                           Text="INDEXED" />
+                            </Border>
+                        </Grid>
+                    </Border>
+                    <ListBox x:Name="TreeRows"
+                             Grid.Row="1"
+                             Classes="workspaceList"
+                             SelectionChanged="TreeSelectionChanged">
                         <ListBox.ItemTemplate>
                             <DataTemplate x:DataType="local:NodeRowViewModel">
-                                <Grid Margin="{Binding Indent}" ColumnDefinitions="26,*">
+                                <Grid Margin="{Binding Indent}" ColumnDefinitions="28,*">
                                     <Button Grid.Column="0"
-                                            Width="23"
-                                            Height="23"
+                                            Classes="icon ghost"
+                                            Width="25"
+                                            Height="25"
                                             Padding="0"
                                             IsVisible="{Binding CanExpand}"
                                             Click="ToggleNode"
@@ -58,7 +279,10 @@
                                     <TextBlock Grid.Column="1"
                                                Margin="5,0,0,0"
                                                VerticalAlignment="Center"
-                                               FontFamily="Consolas,Cascadia Mono,Monospace"
+                                               FontFamily="Cascadia Mono,Consolas,Monospace"
+                                               FontSize="12"
+                                               FontWeight="Normal"
+                                               Foreground="{DynamicResource AppTextBrush}"
                                                TextTrimming="CharacterEllipsis"
                                                Text="{Binding DisplayText}" />
                                 </Grid>
@@ -68,58 +292,149 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Column="1" BorderBrush="{DynamicResource ThemeBorderLowBrush}" BorderThickness="1" CornerRadius="5">
-                <TabControl x:Name="DetailTabs">
-                    <TabItem Header="Pretty / Raw">
-                        <TextBox x:Name="RawPreview"
-                                 Margin="8"
-                                 IsReadOnly="True"
-                                 AcceptsReturn="True"
-                                 TextWrapping="NoWrap"
-                                 FontFamily="Consolas,Cascadia Mono,Monospace"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                 ScrollViewer.VerticalScrollBarVisibility="Auto" />
-                    </TabItem>
-                    <TabItem Header="Table sample">
-                        <TextBox x:Name="TablePreview"
-                                 Margin="8"
-                                 IsReadOnly="True"
-                                 AcceptsReturn="True"
-                                 TextWrapping="NoWrap"
-                                 FontFamily="Consolas,Cascadia Mono,Monospace"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                 Text="Select an array to see a bounded table sample." />
-                    </TabItem>
-                    <TabItem Header="Search results">
-                        <Grid RowDefinitions="Auto,*">
-                            <Grid Grid.Row="0" Margin="10,6" ColumnDefinitions="*,Auto,Auto">
-                                <TextBlock x:Name="SearchSummary" VerticalAlignment="Center" Text="No search has run." />
-                                <Button Grid.Column="1" Margin="4,0" Padding="10,3" Click="PreviousSearchPage" Content="Previous" />
-                                <Button Grid.Column="2" Padding="10,3" Click="NextSearchPage" Content="Next" />
-                            </Grid>
-                            <ListBox x:Name="SearchRows" Grid.Row="1" SelectionChanged="SearchSelectionChanged">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate x:DataType="local:SearchRowViewModel">
-                                        <TextBlock Margin="8,4"
-                                                   FontFamily="Consolas,Cascadia Mono,Monospace"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Text="{Binding DisplayText}" />
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
+            <Border Grid.Column="1"
+                    CornerRadius="12"
+                    Background="{DynamicResource SurfaceBrush}"
+                    BorderBrush="{DynamicResource AppBorderSoftBrush}"
+                    BorderThickness="1">
+                <Grid RowDefinitions="72,*">
+                    <Border Grid.Row="0"
+                            Padding="18,0"
+                            BorderBrush="{DynamicResource AppBorderSoftBrush}"
+                            BorderThickness="0,0,0,1">
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                            <StackPanel VerticalAlignment="Center" Spacing="3">
+                                <TextBlock x:Name="NodeTitleText"
+                                           FontSize="15"
+                                           FontWeight="SemiBold"
+                                           Text="Document preview" />
+                                <TextBlock x:Name="NodeMetaText"
+                                           FontFamily="Cascadia Mono,Consolas,Monospace"
+                                           FontSize="10"
+                                           Foreground="{DynamicResource AppMutedBrush}"
+                                           Text="Select a node to inspect its bounded preview" />
+                            </StackPanel>
+                            <Button Grid.Column="1"
+                                    Classes="ghost"
+                                    Padding="11,7"
+                                    ToolTip.Tip="Copy this node's JSON Pointer"
+                                    Click="CopyPointer"
+                                    Content="Copy pointer" />
+                            <Button Grid.Column="2"
+                                    Padding="11,7"
+                                    ToolTip.Tip="Export this subtree to a JSON file"
+                                    Click="ExportSelection"
+                                    Content="Export subtree" />
                         </Grid>
-                    </TabItem>
-                </TabControl>
+                    </Border>
+                    <TabControl x:Name="DetailTabs" Grid.Row="1" Classes="workspaceTabs">
+                        <TabItem Header="PREVIEW">
+                            <Border Margin="12"
+                                    CornerRadius="8"
+                                    Background="{DynamicResource CodeBackgroundBrush}"
+                                    BorderBrush="{DynamicResource AppBorderSoftBrush}"
+                                    BorderThickness="1">
+                                <TextBox x:Name="RawPreview"
+                                         Margin="4"
+                                         Padding="14"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         IsReadOnly="True"
+                                         AcceptsReturn="True"
+                                         TextWrapping="NoWrap"
+                                         FontFamily="Cascadia Mono,Consolas,Monospace"
+                                         FontSize="12"
+                                         FontWeight="Normal"
+                                         LineHeight="19"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="TABLE SAMPLE">
+                            <Border Margin="12"
+                                    CornerRadius="8"
+                                    Background="{DynamicResource CodeBackgroundBrush}"
+                                    BorderBrush="{DynamicResource AppBorderSoftBrush}"
+                                    BorderThickness="1">
+                                <TextBox x:Name="TablePreview"
+                                         Margin="4"
+                                         Padding="14"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         IsReadOnly="True"
+                                         AcceptsReturn="True"
+                                         TextWrapping="NoWrap"
+                                         FontFamily="Cascadia Mono,Consolas,Monospace"
+                                         FontSize="12"
+                                         FontWeight="Normal"
+                                         LineHeight="19"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                         Text="Select an array to see a bounded table sample." />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="SEARCH RESULTS">
+                            <Grid RowDefinitions="52,*">
+                                <Border Grid.Row="0"
+                                        Padding="14,0"
+                                        BorderBrush="{DynamicResource AppBorderSoftBrush}"
+                                        BorderThickness="0,0,0,1">
+                                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="7">
+                                        <TextBlock x:Name="SearchSummary"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource AppMutedBrush}"
+                                                   Text="No search has run." />
+                                        <Button Grid.Column="1" Classes="ghost" Padding="10,6" Click="PreviousSearchPage" Content="← Previous" />
+                                        <Button Grid.Column="2" Classes="ghost" Padding="10,6" Click="NextSearchPage" Content="Next →" />
+                                    </Grid>
+                                </Border>
+                                <ListBox x:Name="SearchRows"
+                                         Grid.Row="1"
+                                         Classes="workspaceList"
+                                         SelectionChanged="SearchSelectionChanged">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate x:DataType="local:SearchRowViewModel">
+                                            <TextBlock Margin="8,6"
+                                                       FontFamily="Cascadia Mono,Consolas,Monospace"
+                                                       FontSize="12"
+                                                       FontWeight="Normal"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Text="{Binding DisplayText}" />
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Grid>
+                        </TabItem>
+                    </TabControl>
+                </Grid>
             </Border>
         </Grid>
 
-        <Border Grid.Row="3" Padding="14,7" BorderBrush="{DynamicResource ThemeBorderLowBrush}" BorderThickness="0,1,0,0">
-            <Grid ColumnDefinitions="*,Auto,Auto,Auto">
-                <TextBlock x:Name="StatusText" FontSize="11" Text="Ready" />
-                <Button Grid.Column="1" Margin="8,0" Padding="8,2" Click="CopyPointer" Content="Copy pointer" />
-                <Button Grid.Column="2" Margin="0,0,12,0" Padding="8,2" Click="ExportSelection" Content="Export selection" />
-                <TextBlock Grid.Column="3" FontSize="11" Foreground="{DynamicResource ThemeForegroundLowBrush}" Text="Bounded-memory mode · .NET 10 · Avalonia 12" />
+        <!-- Status bar -->
+        <Border Grid.Row="4"
+                Padding="18,0"
+                Background="{DynamicResource SurfaceBrush}"
+                BorderBrush="{DynamicResource AppBorderSoftBrush}"
+                BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="9">
+                <Border x:Name="StatusIndicator"
+                        Width="7"
+                        Height="7"
+                        VerticalAlignment="Center"
+                        CornerRadius="4"
+                        Background="{DynamicResource SuccessBrush}" />
+                <TextBlock x:Name="StatusText"
+                           Grid.Column="1"
+                           VerticalAlignment="Center"
+                           FontSize="11"
+                           Foreground="{DynamicResource AppMutedBrush}"
+                           Text="Ready" />
+                <TextBlock x:Name="OperationText"
+                           Grid.Column="2"
+                           VerticalAlignment="Center"
+                           FontSize="10"
+                           Foreground="{DynamicResource AppSubtleBrush}"
+                           Text="BOUNDED MEMORY · NATIVE AOT" />
             </Grid>
         </Border>
     </Grid>
