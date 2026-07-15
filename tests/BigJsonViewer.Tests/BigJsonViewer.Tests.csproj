@@ -23,6 +23,7 @@
     <ProjectReference Include="..\..\src\BigJsonViewer.Storage\BigJsonViewer.Storage.csproj" />
     <ProjectReference Include="..\..\src\BigJsonViewer.Indexing\BigJsonViewer.Indexing.csproj" />
     <ProjectReference Include="..\..\src\BigJsonViewer.Search\BigJsonViewer.Search.csproj" />
+    <ProjectReference Include="..\..\src\BigJsonViewer.App\BigJsonViewer.App.csproj" />
     <ProjectReference Include="..\..\tools\BigJsonViewer.CorpusGenerator\BigJsonViewer.CorpusGenerator.csproj" />
     <ProjectReference Include="..\..\benchmarks\BigJsonViewer.BenchmarkKernels\BigJsonViewer.BenchmarkKernels.csproj" />
   </ItemGroup>
