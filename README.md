@@ -1,35 +1,44 @@
 # BigJsonViewer
 
-BigJsonViewer is a cross-platform desktop viewer designed for JSON files much larger than available memory. The application is being built around bounded-memory storage, persistent structural indexes, virtualized UI rows, and streaming search results.
+BigJsonViewer is a cross-platform desktop viewer for JSON files that are much larger than available memory. It uses bounded file windows, a persistent compact structural index, a virtualized tree, and disk-paged search results instead of building a whole-document DOM.
 
-## Current status
+## What works
 
-The repository contains the foundation build:
+- open, recent-file, and drag-and-drop workflows for UTF-8 JSON and JSON Lines;
+- streaming structural validation and indexing across arbitrarily placed read boundaries;
+- compact, checksummed `.bjx` indexes tied to sampled source identity;
+- a flat virtualized tree with 250-child pages, expand/collapse, scalar previews, and JSON Pointer copy;
+- bounded 64 KiB pretty/raw previews, array table samples, and streamed subtree export;
+- cancellable UTF-8 search with property-name, string-value, scalar/syntax, and selected-subtree modes;
+- disk-backed search results with 500-result UI pages;
+- stale-source detection while a document is open;
+- Native AOT-compatible builds for Windows, Linux, and macOS on x64 and Arm64.
 
-- .NET 10 and Avalonia 12 desktop shell
-- Native AOT-compatible project configuration
-- Separate core, storage, indexing, and search assemblies
-- Initial random-access file abstraction and tests
-- Windows, Linux, and macOS CI
-- Tagged Native AOT release builds for x64 and Arm64
+The default source cache is 64 MiB in 1 MiB windows. Source offsets, node IDs, lengths, and result counts are 64-bit. Tests exercise reads beyond 10 GiB using sparse 12 GiB files.
 
-The indexing format and scanner are deliberately scheduled after the benchmark harness so their design is driven by measurements.
+## Run it
 
-## Requirements
-
-- [.NET SDK 10.0.300 or newer compatible feature band](https://dotnet.microsoft.com/download)
-- Windows, macOS, or Linux supported by Avalonia
-
-## Build and run
+Requirements: .NET SDK 10.0.300 or a compatible newer feature band.
 
 ```shell
 dotnet restore BigJsonViewer.slnx
-dotnet build BigJsonViewer.slnx
-dotnet test BigJsonViewer.slnx
-dotnet run --project src/BigJsonViewer.App/BigJsonViewer.App.csproj
+dotnet run --project src/BigJsonViewer.App/BigJsonViewer.App.csproj --configuration Release
 ```
 
-Generate a deterministic large-file corpus without committing the generated data:
+Choose **Open JSON**, select a local `.json`, `.jsonl`, or `.ndjson` file, and let the first index build finish. The compact index is retained beneath the operating system's local application-data directory and reused only while the source identity matches.
+
+See the [user guide](docs/USER_GUIDE.md) for search modes, limits, index storage, and troubleshooting.
+
+## Build and test
+
+```shell
+dotnet restore BigJsonViewer.slnx
+dotnet format BigJsonViewer.slnx --no-restore --verify-no-changes
+dotnet build BigJsonViewer.slnx --configuration Release --no-restore
+dotnet test BigJsonViewer.slnx --configuration Release --no-build
+```
+
+Generate a deterministic large corpus without committing it:
 
 ```shell
 dotnet run --project tools/BigJsonViewer.CorpusGenerator -- \
@@ -38,9 +47,7 @@ dotnet run --project tools/BigJsonViewer.CorpusGenerator -- \
   --output E:/BigJsonData/wide-10gib.json
 ```
 
-See the [corpus generator guide](docs/CORPUS_GENERATOR.md) for scenarios, reproducibility guarantees, and adversarial inputs.
-
-Create a Native AOT build for the current operating system by selecting its runtime identifier:
+Create a Native AOT build by selecting a runtime identifier:
 
 ```shell
 dotnet publish src/BigJsonViewer.App/BigJsonViewer.App.csproj \
@@ -52,29 +59,33 @@ dotnet publish src/BigJsonViewer.App/BigJsonViewer.App.csproj \
 
 ## Releases
 
-Push a semantic version tag to build and publish Native AOT archives:
+Semantic-version tags build portable Native AOT archives for `win-x64`, `win-arm64`, `linux-x64`, `linux-arm64`, `osx-x64`, and `osx-arm64`. Each GitHub release includes `SHA256SUMS.txt`.
 
 ```shell
 git tag v0.1.0
 git push origin v0.1.0
 ```
 
-The release workflow produces archives for Windows, Linux, and macOS on x64 and Arm64.
+Portable builds are unsigned. Platform signing, notarization, and installer formats require release-owner certificates and are deliberately not simulated by the repository.
 
-## Architecture and roadmap
+## Documentation
 
+- [User guide](docs/USER_GUIDE.md)
 - [Architecture](docs/ARCHITECTURE.md)
+- [`.bjx` index format](docs/INDEX_FORMAT.md)
 - [Step-by-step implementation plan](docs/PLAN.md)
 - [Corpus generator](docs/CORPUS_GENERATOR.md)
 - [Performance benchmarks](docs/BENCHMARKS.md)
-- [Initial performance budgets](docs/PERFORMANCE_BUDGETS.md)
+- [Performance budgets](docs/PERFORMANCE_BUDGETS.md)
 - [Source storage](docs/STORAGE.md)
+- [Release checklist](docs/RELEASE.md)
 
-## Performance principles
+## Performance invariants
 
 - Never build a whole-document DOM.
-- Keep memory bounded independently of source-file size.
-- Use 64-bit offsets everywhere.
-- Render only visible rows.
-- Make indexing and search incremental and cancellable.
-- Benchmark sequential reads, mappings, parsing, and index representations before committing to a format.
+- Keep managed memory bounded independently of source size.
+- Use 64-bit source positions everywhere.
+- Materialize only visible tree rows and the current result page.
+- Represent giant tokens as source ranges.
+- Treat source files and indexes as untrusted, mutable external state.
+- Make indexing, search, preview, and export cancellable.

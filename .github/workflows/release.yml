@@ -91,4 +91,12 @@ jobs:
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" artifacts/* --repo "${GITHUB_REPOSITORY}" --verify-tag --generate-notes --title "BigJsonViewer ${GITHUB_REF_NAME}"
+        shell: bash
+        run: |
+          cd artifacts
+          sha256sum BigJsonViewer-* > SHA256SUMS.txt
+          gh release create "${GITHUB_REF_NAME}" ./* \
+            --repo "${GITHUB_REPOSITORY}" \
+            --verify-tag \
+            --generate-notes \
+            --title "BigJsonViewer ${GITHUB_REF_NAME}"

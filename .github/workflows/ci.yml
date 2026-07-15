@@ -39,3 +39,46 @@ jobs:
 
       - name: Check formatting
         run: dotnet format BigJsonViewer.slnx --no-restore --verify-no-changes
+
+  native-aot-preview:
+    name: Native AOT ${{ matrix.rid }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: macos-latest
+            rid: osx-arm64
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+
+      - name: Publish Native AOT preview
+        run: >-
+          dotnet publish src/BigJsonViewer.App/BigJsonViewer.App.csproj
+          --configuration Release
+          --runtime ${{ matrix.rid }}
+          --self-contained true
+          -p:PublishAot=true
+          -p:DebugType=None
+          -p:DebugSymbols=false
+          --output artifacts/preview/${{ matrix.rid }}
+
+      - name: Upload runnable preview
+        uses: actions/upload-artifact@v7
+        with:
+          name: BigJsonViewer-preview-${{ matrix.rid }}
+          path: artifacts/preview/${{ matrix.rid }}
+          if-no-files-found: error
+          retention-days: 7

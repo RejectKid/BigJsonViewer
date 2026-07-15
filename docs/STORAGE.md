@@ -24,7 +24,7 @@ reader.Read(offset, length, ProcessChunk, cancellationToken);
 
 One reader supports one active scan at a time. Cancellation is checked before renting, before every operating-system read, and therefore between chunks. An active operating-system read cannot be interrupted by the synchronous API; indexing should run on a background worker.
 
-The buffer is returned without clearing after success, cancellation, or an exception. Callbacks must treat input as read-only and must not retain it. The source length is snapshotted when the reader opens; source identity and live modification detection are later Milestone 2 work.
+The buffer is returned without clearing after success, cancellation, or an exception. Callbacks must treat input as read-only and must not retain it. The source length is snapshotted when the reader opens. Indexing resamples source identity before publishing, and open UI sessions periodically resample it to detect modification, replacement, or deletion.
 
 ## Bounded random-access windows
 
@@ -42,6 +42,12 @@ Reads may cross any number of window boundaries and stop at the snapshotted end 
 Caller cancellation stops that caller without cancelling a shared load needed by other callers. A window is published only after every expected byte has been read; truncated or failed loads return their buffer and remain retryable. Disposal cancels internal loads, drains active reads, returns every resident buffer, and disposes the wrapped source unless `leaveOpen` was requested.
 
 `Statistics` reports hits, unique misses, coalesced requests, completed loads, evictions, resident bytes/windows, and in-flight loads. These counters are snapshots intended for diagnostics and performance tuning.
+
+## Source identity and format inspection
+
+`SourceInspector` samples the first and last 64 KiB and combines them with 64-bit length and UTC modification ticks. It detects UTF BOMs/probable UTF-16, JSON versus JSON Lines, gzip/ZIP/Zstandard signatures, and the portable sparse-file attribute. Sampling fails if length or modification time changes during inspection.
+
+`MemoryMappedFileSource` is the bounded-view mapping prototype. Random-access benchmarks compare it with direct positional reads, a persistent accessor, warm cache hits, and deliberate cache thrashing. Production sessions currently use positional reads because they provide consistent ownership and cancellation semantics across operating systems; the mapped source remains available for measured platform-specific use.
 
 ## Validation
 
