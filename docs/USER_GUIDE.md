@@ -12,9 +12,17 @@ Indexes are stored under the platform local application-data directory, not besi
 
 The left pane is a flat, virtualized projection of the JSON hierarchy. Expanding a container inserts at most 250 children. **Load more** advances to the next page. Collapsing removes descendants from the visible-row collection.
 
-Selecting a node shows a pretty/raw preview limited to 64 KiB. Large strings and containers are never copied in full merely for display. Arrays also produce a bounded sample of the first 50 rows and first 32 properties per sampled object.
+Selecting a node shows a syntax-colored **Formatted** preview and an exact **Source** preview, both limited to 64 KiB of source. The formatted view decodes readable Unicode escapes, uses relaxed JSON character escaping, and expands string values that themselves contain valid JSON objects or arrays. Expanded embedded values carry a display-only annotation; use Source whenever exact JSON bytes are required. Large strings and containers are never copied in full merely for display. Arrays also produce a bounded, column-inferred sample of the first 50 rows and up to 16 columns. **Export CSV** infers up to 64 columns from the first 100 rows, then streams every array row without constructing the complete table in memory.
 
 **Copy pointer** places the selected node's RFC 6901 JSON Pointer on the clipboard. Finding an array ordinal may walk that parent's compact child chain, so pointers for extremely late array items can take longer. **Export selection** copies the exact selected source range to a new file in 1 MiB chunks.
+
+The workspace toolbar can locate a node by RFC 6901 JSON Pointer or absolute byte offset. The nearest indexed value containing an offset is selected. Click a breadcrumb above the preview to move back to an ancestor. The structure filter limits currently materialized rows; the header controls expand visible containers one level or collapse the tree to its root page.
+
+## Insights and comparison
+
+**Profile** scans the selected subtree's contiguous index records and reports node-type distribution plus frequent property names. Profiles examine at most 100,000 nodes and retain at most 2,048 distinct keys, keeping memory and UI latency bounded.
+
+**Compare** opens or builds the index for a second document, aligns preorder index records, and compares structure, property names, and complete scalar source ranges using bounded buffers. The Insights tab reports totals and the first differences. An insertion near the beginning can shift later preorder IDs, so this is a fast structural comparison rather than a semantic object-key diff.
 
 ## Search
 
@@ -28,6 +36,22 @@ Search scans UTF-8 bytes directly and does not decode the complete document. Mod
 Enable **Selected subtree** to restrict scanning to the selected node's source range. Results are appended to a temporary disk store and displayed 500 at a time. **Previous** and **Next** change result pages. Selecting a result opens a bounded raw viewport around its source position.
 
 Search is byte-oriented and case-sensitive. It searches escaped JSON source representation, so a query for a decoded newline does not match the two source bytes `\\n`. Result stores are deleted when replaced or when the window closes.
+
+The 20 most recent queries are stored per document and appear in the search-history menu and command palette. The app also restores up to 100 expanded nodes, the selected node, and the active detail tab when the same document is reopened.
+
+## Keyboard shortcuts
+
+| Shortcut | Action |
+|---|---|
+| `Ctrl+Shift+P` | Open the command palette |
+| `Ctrl+O` | Open a document |
+| `Ctrl+F` | Focus search |
+| `Ctrl+G` | Focus pointer/offset navigation |
+| `Ctrl+Shift+Right` | Expand visible nodes one level |
+| `Ctrl+Shift+Left` | Collapse all |
+| `Ctrl+I` | Profile the selected subtree |
+| `Ctrl+D` | Compare another document |
+| `Ctrl+Shift+E` | Export the selected array as CSV |
 
 ## Very large files
 
@@ -45,7 +69,10 @@ Default bounds:
 | Visible child page | 250 rows |
 | Search result page | 500 rows |
 | Pretty/raw preview | 64 KiB |
-| Table sample | 50 rows × 32 cells |
+| Table sample | 50 rows × 16 inferred columns |
+| CSV inference | 100 rows × 64 columns |
+| Structure profile | 100,000 nodes / 2,048 tracked keys |
+| Restored expanded state | 100 nodes per document |
 | Search query | 1 MiB UTF-8 |
 
 Keep enough free space for the `.bjx` index and temporary search results. The compact index uses variable-length scalar records, fixed patchable container records, and one 64-bit checkpoint per 64 nodes. On the deterministic 8 MiB wide-array fixture, this reduced the index from the original fixed-record prototype's 52.7 MB to approximately 15 MB.

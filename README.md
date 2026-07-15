@@ -8,9 +8,11 @@ BigJsonViewer is a cross-platform desktop viewer for JSON files that are much la
 - streaming structural validation and indexing across arbitrarily placed read boundaries;
 - compact, checksummed `.bjx` indexes tied to sampled source identity;
 - a flat virtualized tree with 250-child pages, expand/collapse, scalar previews, and JSON Pointer copy;
-- bounded 64 KiB pretty/raw previews, array table samples, and streamed subtree export;
+- pointer/byte-offset navigation, clickable breadcrumbs, visible-tree filtering, and restored workspace state;
+- bounded 64 KiB syntax-colored/readable and exact-source previews, inferred array tables, streamed CSV, and subtree export;
 - cancellable UTF-8 search with property-name, string-value, scalar/syntax, and selected-subtree modes;
 - disk-backed search results with 500-result UI pages;
+- bounded structure profiles, index-aware document comparison, search history, and a keyboard command palette;
 - stale-source detection while a document is open;
 - Native AOT-compatible builds for Windows, Linux, and macOS on x64 and Arm64.
 

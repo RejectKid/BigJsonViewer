@@ -8,6 +8,7 @@ namespace BigJsonViewer.App;
 public sealed class NodeRowViewModel : INotifyPropertyChanged
 {
     private bool _isExpanded;
+    private bool _isFilterMatch = true;
 
     public NodeRowViewModel(IndexedNode node, int depth, string displayText)
     {
@@ -55,11 +56,26 @@ public sealed class NodeRowViewModel : INotifyPropertyChanged
 
             _isExpanded = value;
             OnPropertyChanged();
-            OnPropertyChanged(nameof(ToggleGlyph));
+            OnPropertyChanged(nameof(ShowVerticalStroke));
         }
     }
 
-    public string ToggleGlyph => IsLoadMore ? "+" : IsExpanded ? "−" : "+";
+    public bool ShowVerticalStroke => IsLoadMore || !IsExpanded;
+
+    public bool IsFilterMatch
+    {
+        get => _isFilterMatch;
+        set
+        {
+            if (_isFilterMatch == value)
+            {
+                return;
+            }
+
+            _isFilterMatch = value;
+            OnPropertyChanged();
+        }
+    }
 
     public static NodeRowViewModel LoadMore(long parentId, long skip, int depth) => new(parentId, skip, depth);
 

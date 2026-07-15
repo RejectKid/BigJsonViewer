@@ -4,7 +4,16 @@
              x:CompileBindings="True"
              RequestedThemeVariant="Dark">
     <Application.Resources>
-        <SolidColorBrush x:Key="AppBackgroundBrush" Color="#0A0E17" />
+        <LinearGradientBrush x:Key="AppBackgroundBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+            <GradientStop Offset="0" Color="#080C14" />
+            <GradientStop Offset="0.55" Color="#0A0F19" />
+            <GradientStop Offset="1" Color="#0D1320" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="HeaderBrush" StartPoint="0%,0%" EndPoint="100%,0%">
+            <GradientStop Offset="0" Color="#121A28" />
+            <GradientStop Offset="0.5" Color="#101722" />
+            <GradientStop Offset="1" Color="#121827" />
+        </LinearGradientBrush>
         <SolidColorBrush x:Key="SurfaceBrush" Color="#101722" />
         <SolidColorBrush x:Key="SurfaceRaisedBrush" Color="#151E2D" />
         <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#1B2638" />
@@ -33,6 +42,7 @@
         </Style>
 
         <Style Selector="Button">
+            <Setter Property="MinHeight" Value="34" />
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Padding" Value="14,9" />
             <Setter Property="FontWeight" Value="SemiBold" />
@@ -40,9 +50,14 @@
             <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
         <Style Selector="Button:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="{DynamicResource SurfaceHoverBrush}" />
+        </Style>
+        <Style Selector="Button:focus-visible">
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
         </Style>
         <Style Selector="Button.primary">
             <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
@@ -66,8 +81,26 @@
             <Setter Property="Padding" Value="0" />
             <Setter Property="FontSize" Value="15" />
         </Style>
+        <Style Selector="Button.icon.small">
+            <Setter Property="Width" Value="28" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+        <Style Selector="Button.compact">
+            <Setter Property="MinHeight" Value="30" />
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="CornerRadius" Value="7" />
+        </Style>
+        <Style Selector="Button.breadcrumb">
+            <Setter Property="Padding" Value="5,2" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedBrush}" />
+        </Style>
 
         <Style Selector="TextBox">
+            <Setter Property="MinHeight" Value="34" />
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Background" Value="{DynamicResource CodeBackgroundBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
@@ -76,6 +109,7 @@
             <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
         </Style>
         <Style Selector="ComboBox">
+            <Setter Property="MinHeight" Value="34" />
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
