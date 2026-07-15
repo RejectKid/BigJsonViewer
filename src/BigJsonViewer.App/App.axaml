@@ -2,10 +2,117 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="BigJsonViewer.App.App"
              x:CompileBindings="True"
-             RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+             RequestedThemeVariant="Dark">
+    <Application.Resources>
+        <SolidColorBrush x:Key="AppBackgroundBrush" Color="#0A0E17" />
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#101722" />
+        <SolidColorBrush x:Key="SurfaceRaisedBrush" Color="#151E2D" />
+        <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#1B2638" />
+        <SolidColorBrush x:Key="AppBorderBrush" Color="#253147" />
+        <SolidColorBrush x:Key="AppBorderSoftBrush" Color="#1C2637" />
+        <SolidColorBrush x:Key="AppTextBrush" Color="#EDF3FC" />
+        <SolidColorBrush x:Key="AppMutedBrush" Color="#8D9CB2" />
+        <SolidColorBrush x:Key="AppSubtleBrush" Color="#5F7089" />
+        <SolidColorBrush x:Key="AccentBrush" Color="#738CFF" />
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#8399FF" />
+        <SolidColorBrush x:Key="AccentPressedBrush" Color="#627BEA" />
+        <SolidColorBrush x:Key="AccentSoftBrush" Color="#26345F" />
+        <SolidColorBrush x:Key="SuccessBrush" Color="#5CD6B3" />
+        <SolidColorBrush x:Key="SuccessSoftBrush" Color="#173B38" />
+        <SolidColorBrush x:Key="WarningBrush" Color="#F4BE6A" />
+        <SolidColorBrush x:Key="DangerBrush" Color="#FF7185" />
+        <SolidColorBrush x:Key="CodeBackgroundBrush" Color="#0C121D" />
+    </Application.Resources>
 
     <Application.Styles>
         <FluentTheme />
+
+        <Style Selector="Window">
+            <Setter Property="FontFamily" Value="Inter,Segoe UI,Arial,sans-serif" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+        </Style>
+
+        <Style Selector="Button">
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="14,9" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+        </Style>
+        <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SurfaceHoverBrush}" />
+        </Style>
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
+        </Style>
+        <Style Selector="Button.primary:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentPressedBrush}" />
+        </Style>
+        <Style Selector="Button.ghost">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedBrush}" />
+        </Style>
+        <Style Selector="Button.icon">
+            <Setter Property="Width" Value="36" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="FontSize" Value="15" />
+        </Style>
+
+        <Style Selector="TextBox">
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Background" Value="{DynamicResource CodeBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="12,9" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+        </Style>
+        <Style Selector="ComboBox">
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10,7" />
+        </Style>
+        <Style Selector="ProgressBar">
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AppBorderSoftBrush}" />
+        </Style>
+
+        <Style Selector="ListBox.workspaceList">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="ListBox.workspaceList > ListBoxItem">
+            <Setter Property="Padding" Value="6,4" />
+            <Setter Property="Margin" Value="6,1" />
+            <Setter Property="CornerRadius" Value="7" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="ListBox.workspaceList > ListBoxItem:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SurfaceHoverBrush}" />
+        </Style>
+        <Style Selector="ListBox.workspaceList > ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+        </Style>
+
+        <Style Selector="TabControl.workspaceTabs TabItem">
+            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="FontFamily" Value="Segoe UI,Arial,sans-serif" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedBrush}" />
+        </Style>
+        <Style Selector="TabControl.workspaceTabs TabItem:selected">
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+        </Style>
     </Application.Styles>
 </Application>

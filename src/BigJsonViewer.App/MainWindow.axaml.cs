@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using BigJsonViewer.Core;
@@ -29,6 +30,9 @@ public partial class MainWindow : Window
     private CancellationTokenSource? _previewOperation;
     private bool _checkingStale;
     private long _searchPageStart;
+    private static readonly SolidColorBrush AccentStatusBrush = new(Color.Parse("#738CFF"));
+    private static readonly SolidColorBrush ReadyStatusBrush = new(Color.Parse("#5CD6B3"));
+    private static readonly SolidColorBrush ErrorStatusBrush = new(Color.Parse("#FF7185"));
 
     public MainWindow()
     {
@@ -41,6 +45,7 @@ public partial class MainWindow : Window
         DragDrop.AddDropHandler(this, DropFile);
         _staleTimer = new DispatcherTimer(TimeSpan.FromSeconds(10), DispatcherPriority.Background, CheckStale);
         _staleTimer.Start();
+        ShowWelcome();
     }
 
     private async void OpenFile(object? sender, RoutedEventArgs args)
@@ -67,6 +72,7 @@ public partial class MainWindow : Window
         CancelActiveOperation();
         _operation = new CancellationTokenSource();
         var token = _operation.Token;
+        SetDocumentCommands(false);
         SetBusy("Inspecting source…", 0);
         try
         {
@@ -82,10 +88,13 @@ public partial class MainWindow : Window
             RefreshRecentFiles();
             FileNameText.Text = Path.GetFileName(path);
             FileDetailsText.Text =
-                $"{_session.Metadata.Identity.Length:N0} bytes · {_session.Metadata.Format} · {_session.Metadata.Encoding} · " +
-                $"{_session.Index.Header.NodeCount:N0} nodes · {_session.IndexLength:N0}-byte index";
+                $"{FormatSize(_session.Metadata.Identity.Length)} · {_session.Metadata.Format} · {_session.Metadata.Encoding} · " +
+                $"{_session.Index.Header.NodeCount:N0} nodes · {FormatSize(_session.IndexLength)} index";
+            Title = $"{Path.GetFileName(path)} — BigJsonViewer";
             _treeRows.Clear();
             await InsertChildrenAsync(0, 0, 0, 0, token);
+            ShowWorkspace();
+            SetDocumentCommands(true);
             SetReady($"Opened {_session.Metadata.Path}");
             if (_treeRows.Count > 0)
             {
@@ -94,11 +103,15 @@ public partial class MainWindow : Window
         }
         catch (OperationCanceledException)
         {
+            ShowWelcome();
+            SetDocumentCommands(false);
             SetReady("Open/index operation cancelled.");
         }
         catch (Exception exception)
         {
             await DisposeSessionAsync();
+            ShowWelcome();
+            SetDocumentCommands(false);
             SetError(exception.Message);
         }
     }
@@ -192,6 +205,9 @@ public partial class MainWindow : Window
             var pretty = await _session.GetPrettyPreviewAsync(row.Node, _previewOperation.Token);
             RawPreview.Text = pretty;
             TablePreview.Text = await _session.BuildTableSampleAsync(row.Node, _previewOperation.Token);
+            NodeTitleText.Text = row.DisplayText;
+            NodeMetaText.Text =
+                $"{row.Node.Kind}  ·  node {row.Node.Id:N0}  ·  offset {row.Node.Range.Offset:N0}  ·  {FormatSize(row.Node.Range.Length)}";
             StatusText.Text =
                 $"Node {row.Node.Id:N0} · {row.Node.Kind} · bytes {row.Node.Range.Offset:N0}–{row.Node.Range.End:N0} · " +
                 $"source cache {_session.SourceCacheStatistics.Hits:N0} hits/{_session.SourceCacheStatistics.Misses:N0} misses · " +
@@ -498,6 +514,8 @@ public partial class MainWindow : Window
         OperationProgress.Value = Math.Clamp(fraction, 0, 1);
         OperationText.Text = message;
         StatusText.Text = message;
+        StatusIndicator.Background = AccentStatusBrush;
+        CancelButton.IsEnabled = true;
     }
 
     private void SetReady(string message)
@@ -505,6 +523,8 @@ public partial class MainWindow : Window
         OperationProgress.Value = 0;
         OperationText.Text = "Ready";
         StatusText.Text = message;
+        StatusIndicator.Background = ReadyStatusBrush;
+        CancelButton.IsEnabled = false;
     }
 
     private void SetError(string message)
@@ -513,6 +533,8 @@ public partial class MainWindow : Window
         OperationText.Text = "Error";
         StatusText.Text = message;
         RawPreview.Text = message;
+        StatusIndicator.Background = ErrorStatusBrush;
+        CancelButton.IsEnabled = false;
     }
 
     private void CancelActiveOperation()
@@ -532,5 +554,42 @@ public partial class MainWindow : Window
     private void RefreshRecentFiles()
     {
         RecentFilesBox.ItemsSource = _recentFiles.Paths.ToArray();
+    }
+
+    private void ShowWelcome()
+    {
+        WelcomePanel.IsVisible = true;
+        WorkspaceGrid.IsVisible = false;
+        FileNameText.Text = "No document open";
+        FileDetailsText.Text = "Open a JSON or JSON Lines file to begin";
+        Title = "BigJsonViewer";
+    }
+
+    private void ShowWorkspace()
+    {
+        WelcomePanel.IsVisible = false;
+        WorkspaceGrid.IsVisible = true;
+    }
+
+    private void SetDocumentCommands(bool enabled)
+    {
+        SearchBox.IsEnabled = enabled;
+        SearchModeBox.IsEnabled = enabled;
+        SelectedSubtreeOnly.IsEnabled = enabled;
+        SearchButton.IsEnabled = enabled;
+    }
+
+    private static string FormatSize(long bytes)
+    {
+        string[] units = ["B", "KB", "MB", "GB", "TB"];
+        var value = (double)bytes;
+        var unit = 0;
+        while (value >= 1024 && unit < units.Length - 1)
+        {
+            value /= 1024;
+            unit++;
+        }
+
+        return unit == 0 ? $"{bytes:N0} B" : $"{value:N1} {units[unit]}";
     }
 }
